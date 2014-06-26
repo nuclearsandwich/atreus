@@ -42,6 +42,10 @@ switch_hole_size = 14;
    tell these notches are not all that useful... */
 use_notched_holes = true;
 
+/* Use Alps-compatible switch cutouts in the switch plate instead
+   of Cherry MX cutouts. */
+use_alps_cutouts  = false;
+
 /* Number of rows and columns in the matrix. You need to update
    staggering_offsets if you change n_cols. */
 n_rows = 4;
@@ -72,22 +76,23 @@ module rz(angle, center=undef) {
 function rz_fun(p, angle, center) = [cos(angle) * (p[0] - center[0]) - sin(angle) * (p[1] - center[1]) + center[0],
                                      sin(angle) * (p[0] - center[0]) + cos(angle) * (p[1] - center[1])+ center[1]];
 
-module switch_hole(position, notches=use_notched_holes) {
+module switch_hole(position, notches=use_notched_holes, alps_cutouts=use_alps_cutouts) {
   /* Cherry MX switch hole with the center at `position`. Sizes come
      from the ErgoDox design. */
-  hole_size    = 13.97;
+  hole_width   = alps_cutouts ? 15.5 : 13.97;
+  hole_height  = alps_cutouts ? 12.8 : hole_width;
   notch_width  = 3.5001;
   notch_offset = 4.2545;
   notch_depth  = 0.8128;
   translate(position) {
     union() {
-      square([hole_size, hole_size], center=true);
-      if (notches == true) {
+      square([hole_width, hole_height], center=true);
+      if (notches && !alps_cutouts) {
         translate([0, notch_offset]) {
-          square([hole_size+2*notch_depth, notch_width], center=true);
+          square([hole_height+2*notch_depth, notch_width], center=true);
         }
         translate([0, -notch_offset]) {
-          square([hole_size+2*notch_depth, notch_width], center=true);
+          square([hole_height+2*notch_depth, notch_width], center=true);
         }
       }
     }
